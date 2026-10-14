@@ -1,11 +1,16 @@
 import * as vscode from 'vscode';
 import { checkBrackets } from './bracketChecker';
 
-// VS Code вызывает эту функцию, когда расширение включается
+/**
+ * Вызывается VS Code при включении расширения.
+ * Регистрирует команду «Проверить скобки», создаёт коллекцию
+ * подчёркиваний и надпись в строке состояния.
+ * @param context - контекст расширения, в который складываются объекты для освобождения при выключении
+ */
 export function activate(context: vscode.ExtensionContext) {
-  // Коллекция красных подчеркиваний
+  // красные подчеркивания
   const diagnostics = vscode.languages.createDiagnosticCollection('bracket-checker');
-  // Надпись в строке состояния внизу
+  // надпись в строке состояния внизу
   const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
 
   const command = vscode.commands.registerCommand('bracket-checker.check', () => {
@@ -16,7 +21,7 @@ export function activate(context: vscode.ExtensionContext) {
     }
 
     const document = editor.document;
-    const errors = checkBrackets(document.getText());  // наша логика
+    const errors = checkBrackets(document.getText()); 
 
     // Превращаем каждую ошибку в красное подчеркивание
     const problems: vscode.Diagnostic[] = [];
@@ -27,7 +32,7 @@ export function activate(context: vscode.ExtensionContext) {
     }
     diagnostics.set(document.uri, problems);
 
-    // Пишем итог внизу и в сообщении
+    // итог внизу и в сообщении
     statusBar.text = 'Ошибок скобок: ' + errors.length;
     statusBar.show();
     if (errors.length === 0) {
@@ -39,4 +44,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(command, diagnostics, statusBar);
 }
 
+/**
+ * Вызывается VS Code при выключении расширения.
+ */
 export function deactivate() {}
